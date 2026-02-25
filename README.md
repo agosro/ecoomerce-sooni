@@ -1,9 +1,289 @@
 # SOONI Skincare — Korean Skincare E-commerce
 
-> Tienda online de skincare coreano con panel de administración, carrito, pagos con MercadoPago y autenticación con Google.
+> Korean skincare online store with an admin dashboard, shopping cart, MercadoPago payments, and Google authentication.
 
-<!-- Reemplazá la siguiente línea con una imagen de portada del proyecto -->
+<!-- Replace the line below with your project cover image -->
 ![SOONI Skincare](./docs/images/preview.png)
+
+---
+
+## Table of contents
+
+- [About the project](#about-the-project)
+- [Screenshots](#screenshots)
+- [Tech stack](#tech-stack)
+- [Project structure](#project-structure)
+- [Local setup](#local-setup)
+- [Environment variables](#environment-variables)
+- [Available seeds](#available-seeds)
+- [User roles](#user-roles)
+- [API — Main endpoints](#api--main-endpoints)
+
+---
+
+## About the project
+
+SOONI is a full-stack e-commerce application built with React + Node.js that lets users:
+
+- Browse and filter Korean skincare products
+- Manage a persistent shopping cart
+- Check out with **MercadoPago**
+- Sign up / log in with email or **Google OAuth**
+- Track order status
+- Manage products, orders, and coupons from an admin panel
+
+---
+
+## Screenshots
+
+<!-- Add your screenshots to docs/images/ and update the paths below -->
+
+### Home — Hero
+![Hero](./docs/images/hero.png)
+
+### Product catalog
+![Products](./docs/images/products.png)
+
+### Product detail
+![Detail](./docs/images/product-detail.png)
+
+### Cart
+![Cart](./docs/images/cart.png)
+
+### Checkout
+![Checkout](./docs/images/checkout.png)
+
+### My orders
+![Orders](./docs/images/orders.png)
+
+### Admin dashboard
+![Admin](./docs/images/admin.png)
+![Admin Products](./docs/images/admin-products.png)
+![Admin Coupons](./docs/images/admin-cupons.png)
+
+### Login / Register
+![Login](./docs/images/login.png)
+
+---
+
+## Tech stack
+
+### Frontend
+| Technology | Purpose |
+|---|---|
+| React 19 | UI |
+| React Router v7 | Routing |
+| Tailwind CSS v4 | Styling |
+| Zustand | Global state (auth) |
+| Axios | API calls |
+| MercadoPago SDK React | Payment button |
+| Google OAuth (`@react-oauth/google`) | Social login |
+| Vite | Build tool |
+| Lucide React | Icons |
+
+### Backend
+| Technology | Purpose |
+|---|---|
+| Node.js + Express 5 | REST server |
+| MongoDB + Mongoose | Database |
+| JSON Web Token | Authentication |
+| bcryptjs | Password hashing |
+| MercadoPago SDK Node | Payment processing |
+| Multer | Image uploads |
+| dotenv | Environment variables |
+
+---
+
+## Project structure
+
+```
+sooni-skincare-coreano/
+├── backend/
+│   ├── src/
+│   │   ├── config/          # DB and MercadoPago setup
+│   │   ├── controllers/     # Business logic
+│   │   ├── middlewares/     # Auth, roles, error handling
+│   │   ├── models/          # Mongoose schemas
+│   │   ├── routes/          # Route definitions
+│   │   ├── seed/            # Initial data scripts
+│   │   ├── services/        # MercadoPago service
+│   │   └── utils/
+│   └── public/images/       # Uploaded product images
+│
+└── frontend/
+    └── src/
+        ├── components/      # Reusable components
+        ├── context/         # CartContext
+        ├── pages/           # App pages
+        ├── router/          # Protected routes
+        ├── services/        # API layer (axios)
+        ├── store/           # Zustand (auth)
+        └── styles/
+```
+
+---
+
+## Local setup
+
+### Prerequisites
+- Node.js 18+
+- MongoDB Atlas account (or local instance)
+- MercadoPago Developers account (for test payments)
+- Google OAuth credentials (optional, for social login)
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/your-username/sooni-skincare-coreano.git
+cd sooni-skincare-coreano
+```
+
+### 2. Set up the backend
+
+```bash
+cd backend
+cp .env.example .env
+# Fill in your credentials in .env
+npm install
+```
+
+### 3. Set up the frontend
+
+```bash
+cd ../frontend
+npm install
+```
+
+### 4. Seed initial data
+
+```bash
+cd backend
+
+# Sample products
+npm run seed
+
+# Users
+npm run seed:admin    # Admin with full access
+npm run seed:viewer   # Viewer (read-only dashboard)
+npm run seed:demo     # Demo user (cart and purchases only)
+```
+
+### 5. Run the project
+
+```bash
+# Terminal 1 — Backend
+cd backend && npm run dev
+
+# Terminal 2 — Frontend
+cd frontend && npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173)
+
+---
+
+## Environment variables
+
+Copy `backend/.env.example` to `backend/.env` and fill in the values:
+
+```env
+PORT=4000
+MONGO_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/sooni
+
+JWT_SECRET=your_jwt_secret
+
+MERCADOPAGO_ACCESS_TOKEN=APP_USR-...
+
+FRONTEND_URL=http://localhost:5173
+BACKEND_URL=http://localhost:4000
+
+# Seeds
+ADMIN_EMAIL=admin@yourdomain.com
+ADMIN_PASSWORD=YourSecurePassword!
+ADMIN_NAME=Admin SOONI
+
+VIEWER_EMAIL=viewer@yourdomain.com
+VIEWER_PASSWORD=YourSecurePassword!
+VIEWER_NAME=Viewer SOONI
+
+DEMO_EMAIL=demo@yourdomain.com
+DEMO_PASSWORD=YourSecurePassword!
+DEMO_NAME=Demo User
+```
+
+> ⚠️ **Never commit your `.env` file to Git.** It is already listed in `.gitignore`.
+
+---
+
+## Available seeds
+
+| Script | Role created | Access |
+|---|---|---|
+| `npm run seed` | — | Loads sample products |
+| `npm run seed:admin` | `admin` | Full panel, CRUD on everything |
+| `npm run seed:viewer` | `viewer` | Read-only dashboard |
+| `npm run seed:demo` | `demo` | Cart and purchases, no account editing |
+
+---
+
+## User roles
+
+| Role | View products | Cart / Purchases | Admin dashboard | Edit products / orders |
+|---|:---:|:---:|:---:|:---:|
+| `user` | ✅ | ✅ | ❌ | ❌ |
+| `demo` | ✅ | ✅ | ❌ | ❌ |
+| `viewer` | ✅ | ✅ | ✅ (read-only) | ❌ |
+| `admin` | ✅ | ✅ | ✅ | ✅ |
+
+---
+
+## API — Main endpoints
+
+### Auth
+| Method | Route | Access |
+|---|---|---|
+| POST | `/api/auth/register` | Public |
+| POST | `/api/auth/login` | Public |
+| POST | `/api/auth/google` | Public |
+| GET | `/api/auth/profile` | Authenticated |
+
+### Products
+| Method | Route | Access |
+|---|---|---|
+| GET | `/api/products` | Public |
+| GET | `/api/products/:id` | Public |
+| GET | `/api/products/admin` | Admin / Viewer |
+| POST | `/api/products` | Admin |
+| PUT | `/api/products/:id` | Admin |
+| DELETE | `/api/products/:id` | Admin |
+
+### Orders
+| Method | Route | Access |
+|---|---|---|
+| GET | `/api/orders/user/me` | Authenticated |
+| GET | `/api/orders` | Admin / Viewer |
+| PUT | `/api/orders/:id/status` | Admin |
+
+### Coupons
+| Method | Route | Access |
+|---|---|---|
+| POST | `/api/coupons/apply` | Authenticated |
+| GET | `/api/coupons` | Admin / Viewer |
+| POST | `/api/coupons` | Admin |
+| PUT | `/api/coupons/:id` | Admin |
+| DELETE | `/api/coupons/:id` | Admin |
+
+### Payments
+| Method | Route | Access |
+|---|---|---|
+| POST | `/api/payments/create-preference` | Authenticated |
+
+---
+
+## License
+
+MIT
+
 
 ---
 
