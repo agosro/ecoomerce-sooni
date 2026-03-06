@@ -8,7 +8,7 @@ export const LABEL = 'block text-xs text-stone-500 mb-1'
 
 export const EMPTY_PRODUCT = {
     name: '', description: '', price: '', stock: '',
-    category: CATEGORIES[0], imageUrl: '', featured: false, active: true,
+    category: '', imageUrl: '', featured: false, active: true, benefits: [],
 }
 
 export const EMPTY_COUPON = {

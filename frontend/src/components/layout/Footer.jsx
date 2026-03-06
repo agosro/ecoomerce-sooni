@@ -25,7 +25,7 @@ export default function Footer() {
             <ul className="space-y-3 text-sm text-ink/60">
               <li><Link to="/productos" className="hover:text-ink transition">Productos</Link></li>
               <li><Link to="/rutina" className="hover:text-ink transition">Rutina</Link></li>
-              <li><Link to="/sobre-nosotros" className="hover:text-ink transition">Sobre nosotros</Link></li>
+              <li><Link to="/nosotros" className="hover:text-ink transition">Sobre nosotros</Link></li>
               <li><Link to="/contacto" className="hover:text-ink transition">Contacto</Link></li>
             </ul>
           </div>

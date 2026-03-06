@@ -94,4 +94,11 @@ export const uploadService = {
   },
 }
 
+// Categories
+export const categoryService = {
+  getAll: () => api.get('/categories'),
+  create: (name) => api.post('/categories', { name }),
+  delete: (id) => api.delete(`/categories/${id}`),
+}
+
 export default api

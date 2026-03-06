@@ -83,36 +83,58 @@ export default function ProductsDetail() {
               <span className="text-base font-light text-ink/60 ml-2">{product.currency}</span>
             </p>
 
-            <p className="mt-6 text-ink/70 font-light leading-relaxed">
+            <p className="mt-6 text-ink/70 font-light leading-relaxed whitespace-pre-line">
               {product.description}
             </p>
 
+            {product.benefits && product.benefits.length > 0 && (
+              <div className="mt-8">
+                <h3 className="text-sm font-semibold text-ink uppercase tracking-widest mb-3">Beneficios</h3>
+                <ul className="space-y-2">
+                  {product.benefits.map((benefit, idx) => (
+                    <li key={idx} className="flex items-start gap-3 text-ink/70 text-sm">
+                      <span className="text-sage mt-1">•</span>
+                      <span>{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {/* Quantity & Add to Cart */}
             <div className="mt-8 flex flex-col sm:flex-row gap-4">
-              <div className="flex items-center border border-ink/20 rounded-full w-fit">
-                <button
-                  onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                  className="p-3 hover:bg-ink/5 transition-colors text-ink"
-                  aria-label="Reducir cantidad"
-                >
-                  <Minus size={18} />
-                </button>
-                <span className="px-6 text-sm font-medium text-ink">{quantity}</span>
-                <button
-                  onClick={() => setQuantity(q => q + 1)}
-                  className="p-3 hover:bg-ink/5 transition-colors text-ink"
-                  aria-label="Aumentar cantidad"
-                >
-                  <Plus size={18} />
-                </button>
-              </div>
+              {product.stock > 0 ? (
+                <>
+                  <div className="flex items-center border border-ink/20 rounded-full w-fit">
+                    <button
+                      onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                      className="p-3 hover:bg-ink/5 transition-colors text-ink"
+                      aria-label="Reducir cantidad"
+                    >
+                      <Minus size={18} />
+                    </button>
+                    <span className="px-6 text-sm font-medium text-ink">{quantity}</span>
+                    <button
+                      onClick={() => setQuantity(q => Math.min(product.stock, q + 1))}
+                      className="p-3 hover:bg-ink/5 transition-colors text-ink"
+                      aria-label="Aumentar cantidad"
+                    >
+                      <Plus size={18} />
+                    </button>
+                  </div>
 
-              <button
-                onClick={handleAddToCart}
-                className="px-8 py-3 bg-ink text-ivory rounded-full hover:bg-ink/90 transition font-medium sm:flex-1"
-              >
-                Agregar al carrito
-              </button>
+                  <button
+                    onClick={handleAddToCart}
+                    className="px-8 py-3 bg-ink text-ivory rounded-full hover:bg-ink/90 transition font-medium sm:flex-1"
+                  >
+                    Agregar al carrito
+                  </button>
+                </>
+              ) : (
+                <div className="flex items-center justify-center w-full px-8 py-3 bg-stone-100 text-stone-500 rounded-full font-medium">
+                  Producto sin stock
+                </div>
+              )}
             </div>
           </div>
         </div>

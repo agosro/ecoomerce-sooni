@@ -46,12 +46,23 @@ export const addToCart = asyncHandler(async (req, res) => {
     return res.status(400).json({ error: "Producto sin precio válido" })
   }
 
+  // Validar que el producto tenga stock disponible
+  if (product.stock === 0) {
+    return res.status(400).json({ error: "Producto sin stock disponible" })
+  }
+
   let cart = await Cart.findOne({ userId: req.user.id })
   if (!cart) {
     cart = new Cart({ userId: req.user.id, items: [] })
   }
 
   const existingItem = cart.items.find((item) => item.productId.toString() === productId)
+  const totalQuantity = existingItem ? existingItem.quantity + parsedQuantity : parsedQuantity
+
+  // Validar que la cantidad total no supere el stock disponible
+  if (totalQuantity > product.stock) {
+    return res.status(400).json({ error: `Stock insuficiente. Disponible: ${product.stock}` })
+  }
 
   if (existingItem) {
     existingItem.quantity += parsedQuantity
@@ -91,6 +102,16 @@ export const updateCartItem = asyncHandler(async (req, res) => {
   const item = cart.items.find((item) => item.productId.toString() === productId)
   if (!item) {
     return res.status(404).json({ error: "Producto no en carrito" })
+  }
+
+  // Validar stock disponible
+  const product = await Product.findById(productId)
+  if (!product) {
+    return res.status(404).json({ error: "Producto no encontrado" })
+  }
+
+  if (parsedQuantity > product.stock) {
+    return res.status(400).json({ error: `Stock insuficiente. Disponible: ${product.stock}` })
   }
 
   item.quantity = parsedQuantity

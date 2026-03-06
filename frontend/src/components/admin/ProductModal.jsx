@@ -1,7 +1,7 @@
-import { useRef, useState } from 'react'
-import { X, ImagePlus } from 'lucide-react'
-import { productService, uploadService } from '../../services/api'
-import { CATEGORIES, EMPTY_PRODUCT, FIELD, LABEL } from './constants'
+import { useRef, useState, useEffect } from 'react'
+import { X, ImagePlus, Plus, Trash2 } from 'lucide-react'
+import { productService, uploadService, categoryService } from '../../services/api'
+import { EMPTY_PRODUCT, FIELD, LABEL } from './constants'
 import Toggle from './Toggle'
 
 // ─── PRODUCT MODAL ────────────────────────────────────────────────────────────
@@ -12,11 +12,28 @@ export default function ProductModal({ product, onClose, onSaved }) {
     const [error, setError] = useState('')
     const [imgFile, setImgFile] = useState(null)
     const [imgPreview, setImgPreview] = useState(product?.imageUrl || null)
+    const [newBenefit, setNewBenefit] = useState('')
+    const [categories, setCategories] = useState([])
     const fileRef = useRef()
+
+    useEffect(() => {
+        categoryService.getAll().then(res => setCategories(res.data))
+    }, [])
 
     const handle = (e) => {
         const { name, value } = e.target
         setForm(prev => ({ ...prev, [name]: value }))
+    }
+
+    const addBenefit = () => {
+        if (newBenefit.trim()) {
+            setForm(prev => ({ ...prev, benefits: [...(prev.benefits || []), newBenefit.trim()] }))
+            setNewBenefit('')
+        }
+    }
+
+    const removeBenefit = (index) => {
+        setForm(prev => ({ ...prev, benefits: prev.benefits.filter((_, i) => i !== index) }))
     }
 
     const handleFile = (file) => {
@@ -127,9 +144,49 @@ export default function ProductModal({ product, onClose, onSaved }) {
 
                     <div>
                         <label className={LABEL}>Categoría</label>
-                        <select name="category" value={form.category} onChange={handle} className={FIELD}>
-                            {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                        <select name="category" value={form.category} onChange={handle} required className={FIELD}>
+                            <option value="">Seleccionar categoría</option>
+                            {categories.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
                         </select>
+                    </div>
+
+                    <div>
+                        <label className={LABEL}>Beneficios</label>
+                        <div className="space-y-2">
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={newBenefit}
+                                    onChange={e => setNewBenefit(e.target.value)}
+                                    onKeyPress={e => e.key === 'Enter' && (e.preventDefault(), addBenefit())}
+                                    placeholder="Agregar un beneficio"
+                                    className={FIELD}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={addBenefit}
+                                    className="px-3 py-2 bg-sage text-white rounded-lg hover:bg-sage/90 transition flex items-center gap-1"
+                                >
+                                    <Plus size={16} />
+                                </button>
+                            </div>
+                            {form.benefits && form.benefits.length > 0 && (
+                                <ul className="space-y-1">
+                                    {form.benefits.map((benefit, idx) => (
+                                        <li key={idx} className="flex items-center justify-between bg-stone-50 p-2 rounded-lg text-sm">
+                                            <span className="text-stone-700">{benefit}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => removeBenefit(idx)}
+                                                className="text-rose-500 hover:text-rose-700 transition"
+                                            >
+                                                <Trash2 size={14} />
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-8 pt-1">

@@ -27,10 +27,11 @@ export default function ProductCard({ product, variant = "sm", onAddToCart }) {
 
   const handleAdd = () => {
     if (!isAuthenticated) { navigate("/setup"); return }
+    if (product.stock === 0) return
     withLoading(async () => {
       if (quantity === 0) {
         await addToCart(product._id, 1)
-      } else {
+      } else if (quantity < product.stock) {
         await updateItem(product._id, quantity + 1)
       }
       onAddToCart?.(product)
@@ -51,6 +52,11 @@ export default function ProductCard({ product, variant = "sm", onAddToCart }) {
             alt={product.name}
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
+          {product.stock === 0 && (
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+              <span className="bg-rose-500 text-white px-3 py-1 rounded-full text-xs font-semibold">Sin stock</span>
+            </div>
+          )}
         </div>
       </Link>
 
@@ -76,13 +82,20 @@ export default function ProductCard({ product, variant = "sm", onAddToCart }) {
         </div>
 
         <p className={`font-semibold text-stone-900 pt-2 ${isLarge ? "text-base" : "text-sm"}`}>
-          ${product.price}
+          ${product.price.toLocaleString("es-AR")}
           <span className="text-xs text-stone-400 ml-1">{product.currency}</span>
         </p>
 
         {/* acción carrito */}
         <div className="mt-auto pt-4">
-          {quantity === 0 ? (
+          {product.stock === 0 ? (
+            <button
+              disabled
+              className="w-full rounded-full border border-stone-300 py-2 text-xs bg-stone-100 text-stone-400 cursor-not-allowed"
+            >
+              Sin stock
+            </button>
+          ) : quantity === 0 ? (
             <button
               onClick={handleAdd}
               disabled={isLoading}
@@ -102,8 +115,8 @@ export default function ProductCard({ product, variant = "sm", onAddToCart }) {
               <span className="text-sm font-medium">{quantity}</span>
               <button
                 onClick={handleAdd}
-                disabled={isLoading}
-                className="px-2 text-stone-400 hover:text-stone-700 disabled:opacity-50"
+                disabled={isLoading || quantity >= product.stock}
+                className="px-2 text-stone-400 hover:text-stone-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 +
               </button>

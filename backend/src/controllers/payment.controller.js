@@ -1,9 +1,21 @@
 import Order from "../models/Order.js"
 import Cart from "../models/Cart.js"
 import User from "../models/User.js"
+import Product from "../models/Product.js"
 import Coupon from "../models/Coupon.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
 import { createPreferenceFromCart, getPaymentById, searchPaymentsByReference } from "../services/mercadopago.service.js"
+
+// ── Helper: reduce el stock de los productos de una orden ────────────────────
+const updateProductStock = async (items) => {
+  for (const item of items) {
+    await Product.findByIdAndUpdate(
+      item.productId,
+      { $inc: { stock: -item.quantity } },
+      { new: true }
+    )
+  }
+}
 
 // ── Helper: crea una orden a partir de los datos del carrito/checkout ──────────
 const buildAndSaveOrder = async ({ userId, items, subtotal, shippingCost, couponDiscount, shippingAddress, notes, paymentMethod, paymentId }) => {
@@ -22,6 +34,10 @@ const buildAndSaveOrder = async ({ userId, items, subtotal, shippingCost, coupon
     statusHistory:  [{ status: 'processing', changedAt: new Date() }],
   })
   await order.save()
+  
+  // Reducir el stock de los productos
+  await updateProductStock(items)
+  
   return order
 }
 

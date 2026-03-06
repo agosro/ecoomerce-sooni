@@ -1,4 +1,5 @@
 import Order from "../models/Order.js"
+import Product from "../models/Product.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
 
 // Obtener órdenes del usuario
@@ -26,6 +27,17 @@ export const getOrderById = asyncHandler(async (req, res) => {
   res.json(order)
 })
 
+// Helper: restaurar stock cuando se cancela una orden
+const restoreProductStock = async (items) => {
+  for (const item of items) {
+    await Product.findByIdAndUpdate(
+      item.productId,
+      { $inc: { stock: item.quantity } },
+      { new: true }
+    )
+  }
+}
+
 // Actualizar estado de orden (solo admin)
 export const updateOrderStatus = asyncHandler(async (req, res) => {
   const { status } = req.body
@@ -39,6 +51,11 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
 
   if (!order) {
     return res.status(404).json({ error: "Orden no encontrada" })
+  }
+
+  // Si se cancela y antes no estaba cancelada, restaurar stock
+  if (status === "cancelled" && order.status !== "cancelled") {
+    await restoreProductStock(order.items)
   }
 
   order.status = status

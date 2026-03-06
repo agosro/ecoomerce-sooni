@@ -1,15 +1,17 @@
 import { useState } from 'react'
-import { Package, ShoppingBag, Tag } from 'lucide-react'
+import { Package, ShoppingBag, Tag, LayoutList } from 'lucide-react'
 import OrdersTab from '../components/admin/OrdersTab'
 import ProductsTab from '../components/admin/ProductsTab'
 import CouponsTab from '../components/admin/CouponsTab'
+import CategoriesTab from '../components/admin/CategoriesTab'
 
 // ─── TABS CONFIG ──────────────────────────────────────────────────────────────
 
 const TABS = [
-  { id: 'orders', label: 'Órdenes', icon: ShoppingBag },
-  { id: 'products', label: 'Productos', icon: Package },
-  { id: 'coupons', label: 'Cupones', icon: Tag },
+  { id: 'orders',     label: 'Órdenes',     icon: ShoppingBag },
+  { id: 'products',   label: 'Productos',   icon: Package },
+  { id: 'categories', label: 'Categorías',  icon: LayoutList },
+  { id: 'coupons',    label: 'Cupones',     icon: Tag },
 ]
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
@@ -51,6 +53,7 @@ export default function AdminDashboard() {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {activeTab === 'orders' && <OrdersTab />}
         {activeTab === 'products' && <ProductsTab />}
+        {activeTab === 'categories' && <CategoriesTab />}
         {activeTab === 'coupons' && <CouponsTab />}
       </div>
     </div>

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Plus, Pencil, Trash2, Check, X } from 'lucide-react'
-import { productService } from '../../services/api'
-import { CATEGORIES } from './constants'
+import { productService, categoryService } from '../../services/api'
 import Toggle from './Toggle'
 import ProductModal from './ProductModal'
 import { FilterSearch, FilterSort, FilterPills } from './FilterBar'
@@ -10,7 +9,9 @@ import { FilterSearch, FilterSort, FilterPills } from './FilterBar'
 
 export default function ProductsTab() {
     const [products, setProducts] = useState([])
+    const [categories, setCategories] = useState([])
     const [loading, setLoading] = useState(true)
+    const [filtering, setFiltering] = useState(false)
     const [modal, setModal] = useState(null)
     const [deleteId, setDeleteId] = useState(null)
     const [filterCat, setFilterCat] = useState('Todos')
@@ -34,11 +35,18 @@ export default function ProductsTab() {
         { value: 'inactive', label: 'Inactivos', activeClass: 'bg-rose-400 text-white' },
     ]
 
-    const CAT_OPTIONS = ['Todos', ...CATEGORIES].map(c => ({ value: c, label: c }))
+    const CAT_OPTIONS = ['Todos', ...categories.map(c => c.name)].map(c => ({ value: c, label: c }))
 
     const load = async () => {
         setLoading(true)
-        try { const res = await productService.getAdminAll(); setProducts(res.data) }
+        try {
+            const [productsRes, categoriesRes] = await Promise.all([
+                productService.getAdminAll(),
+                categoryService.getAll(),
+            ])
+            setProducts(productsRes.data)
+            setCategories(categoriesRes.data)
+        }
         finally { setLoading(false) }
     }
 
@@ -59,10 +67,13 @@ export default function ProductsTab() {
     }
 
     const changeFilter = (val, type) => {
+        setFiltering(true)
         setPage(1)
         if (type === 'cat') setFilterCat(val)
         else if (type === 'status') setFilterStatus(val)
         else setSearch(val)
+        // Simular el tiempo de filtrado para evitar flasheo visual
+        setTimeout(() => setFiltering(false), 50)
     }
 
     const visible = products
@@ -102,7 +113,7 @@ export default function ProductsTab() {
             <div className="flex flex-col gap-3 mb-5">
                 <div className="flex flex-col sm:flex-row gap-3">
                     <FilterSearch value={search} onChange={v => changeFilter(v, 'search')} placeholder="Buscar por nombre..." />
-                    <FilterSort value={sort} onChange={v => { setSort(v); setPage(1) }} options={SORT_OPTIONS} />
+                    <FilterSort value={sort} onChange={v => { setFiltering(true); setSort(v); setPage(1); setTimeout(() => setFiltering(false), 50) }} options={SORT_OPTIONS} />
                 </div>
                 <FilterPills value={filterCat} onChange={v => changeFilter(v, 'cat')} options={CAT_OPTIONS} />
                 <FilterPills value={filterStatus} onChange={v => changeFilter(v, 'status')} options={STATUS_OPTIONS} />
@@ -111,7 +122,7 @@ export default function ProductsTab() {
             {loading ? (
                 <p className="text-stone-400 text-sm">Cargando...</p>
             ) : (
-                <div className="bg-white rounded-2xl border border-stone-100 overflow-hidden">
+                <div className="bg-white rounded-2xl border border-stone-100 overflow-hidden transition-opacity duration-75" style={{ opacity: filtering ? 0.7 : 1 }}>
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead className="bg-stone-50 border-b border-stone-100">
@@ -141,7 +152,21 @@ export default function ProductsTab() {
                                         </td>
                                         <td className="px-4 py-3 text-stone-500">{p.category}</td>
                                         <td className="px-4 py-3 text-stone-700 font-medium">${p.price?.toLocaleString('es-AR')}</td>
-                                        <td className="px-4 py-3 text-stone-500">{p.stock}</td>
+                                        <td className="px-4 py-3">
+                                            <div className="flex items-center gap-2">
+                                                <span className={`px-3 py-1 rounded-full text-xs font-semibold text-white ${
+                                                  p.stock === 0 
+                                                    ? 'bg-rose-500' 
+                                                    : p.stock < 5 
+                                                    ? 'bg-amber-500' 
+                                                    : 'bg-stone-300'
+                                                }`}>
+                                                  {p.stock}
+                                                </span>
+                                                {p.stock === 0 && <span className="text-xs text-rose-600 font-medium">Sin stock</span>}
+                                                {p.stock > 0 && p.stock < 5 && <span className="text-xs text-amber-600 font-medium">Bajo</span>}
+                                            </div>
+                                        </td>
                                         <td className="px-4 py-3">
                                             <Toggle checked={isFeatured} onChange={() => handleToggle(p, 'featured')} colorOn="bg-amber-400" disabled={!p.active} />
                                         </td>
