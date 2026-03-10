@@ -52,7 +52,7 @@ export const createCoupon = asyncHandler(async (req, res) => {
 
 // PUT /api/coupons/:id — admin only
 export const updateCoupon = asyncHandler(async (req, res) => {
-    const coupon = await Coupon.findByIdAndUpdate(req.params.id, req.body, { new: true })
+    const coupon = await Coupon.findByIdAndUpdate(req.params.id, req.body, { returnDocument: 'after' })
     if (!coupon) return res.status(404).json({ error: "Cupón no encontrado" })
     res.json(coupon)
 })

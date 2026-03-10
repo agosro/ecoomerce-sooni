@@ -80,3 +80,46 @@ export const googleAuth = asyncHandler(async (req, res) => {
 
   res.json({ token, user: usuario.toJSON() })
 })
+
+export const updateAddress = asyncHandler(async (req, res) => {
+  const { street, city, state, zipCode, country } = req.body
+
+  const usuario = await User.findByIdAndUpdate(
+    req.user.id,
+    { savedAddress: { street, city, state, zipCode, country: country || 'Argentina' } },
+    { returnDocument: 'after', runValidators: true }
+  )
+
+  if (!usuario) {
+    return res.status(404).json({ error: "Usuario no encontrado" })
+  }
+
+  res.json({ savedAddress: usuario.savedAddress })
+})
+
+export const updateProfile = asyncHandler(async (req, res) => {
+  const { name, phone, street, city, state, zipCode, country } = req.body
+
+  const updates = {}
+  if (name?.trim())  updates.name  = name.trim()
+  if (phone !== undefined) updates.phone = phone.trim()
+  updates.savedAddress = {
+    street:  street  ?? '',
+    city:    city    ?? '',
+    state:   state   ?? '',
+    zipCode: zipCode ?? '',
+    country: country || 'Argentina',
+  }
+
+  const usuario = await User.findByIdAndUpdate(
+    req.user.id,
+    updates,
+    { returnDocument: 'after', runValidators: true }
+  )
+
+  if (!usuario) {
+    return res.status(404).json({ error: "Usuario no encontrado" })
+  }
+
+  res.json(usuario.toJSON())
+})

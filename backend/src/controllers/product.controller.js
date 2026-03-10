@@ -40,7 +40,7 @@ export const updateProduct = asyncHandler(async (req, res) => {
   if (req.body.active === false) {
     req.body.featured = false
   }
-  const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
+  const product = await Product.findByIdAndUpdate(req.params.id, req.body, { returnDocument: 'after', runValidators: true })
   if (!product) return sendNotFound(res, "Producto no encontrado")
   res.json(product)
 })

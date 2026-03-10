@@ -34,6 +34,17 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    phone: {
+      type: String,
+      default: '',
+    },
+    savedAddress: {
+      street:  { type: String, default: '' },
+      city:    { type: String, default: '' },
+      state:   { type: String, default: '' },
+      zipCode: { type: String, default: '' },
+      country: { type: String, default: 'Argentina' },
+    },
   },
   {
     timestamps: true,

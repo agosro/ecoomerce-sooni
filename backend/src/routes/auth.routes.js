@@ -5,6 +5,8 @@ import {
   login,
   getProfile,
   googleAuth,
+  updateAddress,
+  updateProfile,
 } from "../controllers/auth.controller.js"
 import { authMiddleware } from "../middlewares/auth.middleware.js"
 
@@ -33,6 +35,12 @@ router.post(
 
 // Obtener perfil del usuario autenticado
 router.get("/profile", authMiddleware, getProfile)
+
+// Guardar última dirección de envío
+router.put("/address", authMiddleware, updateAddress)
+
+// Actualizar perfil del usuario (nombre, teléfono, dirección)
+router.put("/profile", authMiddleware, updateProfile)
 
 // Login/Registro con Google
 router.post("/google", googleAuth)
