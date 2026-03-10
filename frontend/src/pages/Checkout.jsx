@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
-import { paymentService, couponService } from '../services/api'
+import { paymentService, couponService, authService } from '../services/api'
 import { calcShipping } from '../data/shippingRates'
 import AddressForm from '../components/checkout/AddressForm'
 import OrderSummary from '../components/checkout/OrderSummary'
@@ -15,12 +15,28 @@ export default function Checkout() {
   const [payLoading, setPayLoading] = useState(false)
   const [error, setError]           = useState('')
   const [address, setAddress]       = useState({ street: '', city: '', state: '', zipCode: '', country: 'Argentina' })
+  const [phone, setPhone]           = useState('')
+  const [hasSavedAddress, setHasSavedAddress] = useState(false)
   const [couponCode, setCouponCode] = useState('')
   const [coupon, setCoupon]         = useState(null)
   const [couponError, setCouponError] = useState('')
   const [couponLoading, setCouponLoading] = useState(false)
   // false = formulario, true = selección de pago
   const [showPayment, setShowPayment] = useState(false)
+
+  // Cargar la última dirección guardada al abrir el checkout
+  useEffect(() => {
+    authService.getProfile()
+      .then(({ data }) => {
+        if (data.phone) setPhone(data.phone)
+        const a = data.savedAddress
+        if (a?.street) {
+          setAddress({ street: a.street, city: a.city, state: a.state, zipCode: a.zipCode, country: a.country || 'Argentina' })
+          setHasSavedAddress(true)
+        }
+      })
+      .catch(() => {}) // usuario no autenticado o error no crítico
+  }, [])
 
   // Si el carrito se vacía (pago confirmado) y no estamos en la pantalla de pago → redirigir
   useEffect(() => {
@@ -48,6 +64,8 @@ export default function Checkout() {
   // Paso 1: validar formulario y avanzar a la pantalla de pago (sin llamada al backend)
   const handleSubmit = (e) => {
     e.preventDefault()
+    // Guardar dirección y teléfono en segundo plano
+    authService.updateProfile({ ...address, phone }).catch(() => {})
     setShowPayment(true)
   }
 
@@ -183,7 +201,10 @@ export default function Checkout() {
               <AddressForm
                 address={address}
                 onChange={handleAddressChange}
+                phone={phone}
+                onPhoneChange={(e) => setPhone(e.target.value)}
                 onSubmit={handleSubmit}
+                hasSavedAddress={hasSavedAddress}
               />
             </div>
 

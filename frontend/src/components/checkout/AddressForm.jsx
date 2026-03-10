@@ -9,14 +9,32 @@ const LABEL_CLS = 'block text-xs text-stone-500 mb-1'
 
 // ─── ADDRESS FORM ─────────────────────────────────────────────────────────────
 
-export default function AddressForm({ address, onChange, onSubmit, loading }) {
+export default function AddressForm({ address, onChange, phone, onPhoneChange, onSubmit, loading, hasSavedAddress }) {
   return (
     <div className="bg-white rounded-2xl border border-stone-200 p-8">
       <h2 className="text-sm font-medium text-stone-600 uppercase tracking-widest mb-6">
-        Dirección de envío
+        Datos de envío
       </h2>
 
+      {hasSavedAddress && (
+        <p className="text-xs text-sage mb-5 flex items-center gap-1.5">
+          <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          Usamos tu última dirección guardada. Podés modificarla si cambió.
+        </p>
+      )}
+
       <form onSubmit={onSubmit} className="space-y-4">
+        <div>
+          <label className={LABEL_CLS}>Teléfono de contacto</label>
+          <input
+            type="tel" name="phone" value={phone}
+            onChange={onPhoneChange} required placeholder="+54 9 351 000-0000"
+            className={FIELD_CLS}
+          />
+        </div>
+
         <div>
           <label className={LABEL_CLS}>Calle y número</label>
           <input

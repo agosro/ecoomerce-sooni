@@ -37,6 +37,8 @@ export const authService = {
   login: (data) => api.post('/auth/login', data),
   googleAuth: (data) => api.post('/auth/google', data),
   getProfile: () => api.get('/auth/profile'),
+  updateAddress: (address) => api.put('/auth/address', address),
+  updateProfile: (data) => api.put('/auth/profile', data),
 }
 
 // Products

@@ -50,6 +50,11 @@ const useAuthStore = create((set) => ({
       isAdminOrViewer: false,
     })
   },
+
+  updateUser: (updatedUser) => {
+    localStorage.setItem('user', JSON.stringify(updatedUser))
+    set({ user: updatedUser })
+  },
 }))
 
 export default useAuthStore
