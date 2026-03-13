@@ -1,12 +1,15 @@
 import { Router } from "express"
 import multer from "multer"
-import path from "path"
-import { fileURLToPath } from "url"
-import { promises as fs } from "fs"
+import { v2 as cloudinary } from "cloudinary"
 import sharp from "sharp"
 import { authMiddleware, adminMiddleware } from "../middlewares/auth.middleware.js"
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+// Configurar Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+})
 
 const storage = multer.memoryStorage()
 
@@ -28,8 +31,6 @@ router.post("/", authMiddleware, adminMiddleware, upload.single("image"), async 
     try {
         if (!req.file) return res.status(400).json({ error: "No se recibió imagen" })
         
-        const uploadsDir = path.join(__dirname, "../../public/images/products")
-        
         // Obtener metadata de la imagen
         const metadata = await sharp(req.file.buffer).metadata()
         const { width, height } = metadata
@@ -41,18 +42,26 @@ router.post("/", authMiddleware, adminMiddleware, upload.single("image"), async 
         const left = Math.round((width - size) / 2)
         const top = Math.round((height - size) / 2)
         
-        // Procesar la imagen: recortar al cuadrado y redimensionar a 500x500
-        const filename = `${Date.now()}-${Math.round(Math.random() * 1e6)}.webp`
-        const filepath = path.join(uploadsDir, filename)
-        
-        await sharp(req.file.buffer)
+        // Procesar la imagen: recortar al cuadrado y redimensionar a 1000x1000
+        const processedBuffer = await sharp(req.file.buffer)
             .extract({ left, top, width: size, height: size })
             .resize(1000, 1000, { fit: 'cover' })
             .webp({ quality: 100 })
-            .toFile(filepath)
+            .toBuffer()
         
-        const url = `${req.protocol}://${req.get("host")}/images/products/${filename}`
-        res.json({ url })
+        // Subir a Cloudinary
+        const result = await new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+                { resource_type: 'image', format: 'webp', folder: 'sooni-products' },
+                (error, result) => {
+                    if (error) reject(error)
+                    else resolve(result)
+                }
+            )
+            uploadStream.end(processedBuffer)
+        })
+        
+        res.json({ url: result.secure_url })
     } catch (err) {
         console.error("Upload error:", err)
         res.status(500).json({ error: err.message || "Error al procesar imagen" })
