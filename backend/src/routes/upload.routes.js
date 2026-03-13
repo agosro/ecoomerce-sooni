@@ -1,5 +1,6 @@
 import { Router } from "express"
 import multer from "multer"
+import path from "path"
 import { v2 as cloudinary } from "cloudinary"
 import sharp from "sharp"
 import { authMiddleware, adminMiddleware } from "../middlewares/auth.middleware.js"
