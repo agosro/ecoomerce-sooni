@@ -23,34 +23,34 @@ app.use(cors({
 }))
 app.use(express.json())
 
-// 🔥 SERVIR IMÁGENES
+// SERVIR IMÁGENES
 app.use("/images", express.static(path.join(__dirname, "../public/images")))
 
-// 🔐 RUTAS DE AUTENTICACIÓN
+// RUTAS DE AUTENTICACIÓN
 app.use("/api/auth", authRoutes)
 
-// 🛒 RUTAS DE PRODUCTOS
+// RUTAS DE PRODUCTOS
 app.use("/api/products", productRoutes)
 
-// 🛒 RUTAS DE CARRITO
+// RUTAS DE CARRITO
 app.use("/api/cart", cartRoutes)
 
 // 📦 RUTAS DE ÓRDENES
 app.use("/api/orders", orderRoutes)
 
-// 💳 RUTAS DE PAGOS (MERCADOPAGO)
+// RUTAS DE PAGOS (MERCADOPAGO)
 app.use("/api/payments", paymentRoutes)
 
-// 🎟️ RUTAS DE CUPONES
+// RUTAS DE CUPONES
 app.use("/api/coupons", couponRoutes)
 
-// 🖼️ SUBIDA DE IMÁGENES
+// SUBIDA DE IMÁGENES
 app.use("/api/upload", uploadRoutes)
 
-// 🗂️ CATEGORÍAS
+// CATEGORÍAS
 app.use("/api/categories", categoryRoutes)
 
-// ⚠️ ERROR HANDLER GLOBAL (debe ir al final)
+// ERROR HANDLER GLOBAL (debe ir al final)
 app.use(errorHandler)
 
 export default app

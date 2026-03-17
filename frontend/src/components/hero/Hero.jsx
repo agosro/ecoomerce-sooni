@@ -1,6 +1,9 @@
+import { useNavigate } from "react-router-dom";
 import HeroBackground from "./HeroBackground";
 
 export default function Hero() {
+  const navigate = useNavigate();
+
   return (
     <section className="relative h-[92vh] overflow-hidden bg-ivory">
       <HeroBackground />
@@ -29,11 +32,14 @@ export default function Hero() {
 
             {/* Actions */}
             <div className="mt-8 flex gap-4">
-              <button className="rounded-full bg-sage px-6 py-3 text-sm text-ivory transition hover:opacity-90">
+              <button 
+                onClick={() => navigate("/productos")}
+                className="rounded-full bg-sage px-6 py-3 text-sm text-ivory transition hover:opacity-90">
                 Ver productos
               </button>
 
               <button
+                onClick={() => navigate("/rutina")}
                 className="rounded-full px-6 py-3 text-sm transition bg-ivory text-ink border border-transparent hover:opacity-95 md:border md:border-stone-500 md:bg-transparent md:hover:bg-stone/40"
               >
                 Conocé tu rutina
